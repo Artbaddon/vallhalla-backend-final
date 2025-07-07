@@ -30,6 +30,7 @@ class UserController {
 
       // Hash the password before storing
       const bcrypt = (await import('bcrypt')).default;
+      
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const userId = await UserModel.create({

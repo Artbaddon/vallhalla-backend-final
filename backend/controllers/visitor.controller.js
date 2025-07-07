@@ -57,21 +57,23 @@ class VisitorController {
   async update(req, res) {
     try {
       const id = req.params.id;
-      const { visitor_name, document_number } = req.body;
+      const { visitor_name, document_number, exit_date } = req.body;
 
       if (!id) {
         return res.status(400).json({ error: "Visitor ID is required" });
       }
 
-      if (!visitor_name || !document_number) {
+      // Check if at least one field is provided for update
+      if (!visitor_name && !document_number && !exit_date) {
         return res.status(400).json({
-          error: "Visitor name and document number are required"
+          error: "At least one field (visitor_name, document_number, or exit_date) is required for update"
         });
       }
 
       const updateResult = await VisitorModel.update(id, {
         visitor_name,
-        document_number
+        document_number,
+        exit_date
       });
 
       if (updateResult.error) {

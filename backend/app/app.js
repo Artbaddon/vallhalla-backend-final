@@ -41,14 +41,23 @@ import vehicleTypeRouter from "../routers/vehicleType.router.js";
 import surveyRouter from "../routers/survey.router.js";
 import questionRouter from "../routers/question.router.js";
 import answerRouter from "../routers/answers.router.js";
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
 
 const name = "/api";
 const app = express();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, '..', 'data', 'uploads')));
 
 // ===== PUBLIC ROUTES (No authentication required) =====
 

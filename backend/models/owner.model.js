@@ -273,11 +273,13 @@ class OwnerModel {
           p.Profile_fullName,
           p.Profile_document_type,
           p.Profile_document_number,
-          p.Profile_telephone_number
+          p.Profile_telephone_number,
+          a.Apartment_number
         FROM owner o
         JOIN users u ON o.User_FK_ID = u.Users_id
         JOIN user_status us ON u.User_status_FK_ID = us.User_status_id
         LEFT JOIN profile p ON u.Users_id = p.User_FK_ID
+        LEFT JOIN apartment a ON o.Owner_id = a.Owner_FK_ID
         ${!includeInactive ? 'WHERE u.User_status_FK_ID = 1' : ''}
         ORDER BY o.Owner_id
       `;

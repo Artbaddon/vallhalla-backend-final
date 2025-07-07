@@ -787,8 +787,8 @@ const sqlStatements = [
   // Add dummy data for pets
   `INSERT INTO pet (Pet_name, Pet_species, Pet_Breed, Pet_vaccination_card, Pet_Photo, Owner_FK_ID)
    VALUES 
-   ('Max', 'Dog', 'Golden Retriever', 'vaccination_card_001.pdf', 'max_photo.jpg', 1),
-   ('Luna', 'Cat', 'Persian', 'vaccination_card_002.pdf', 'luna_photo.jpg', 1)`,
+   ('Max', 'Dog', 'Golden Retriever', 'carnet_de_vacunacion.pdf', 'dog.jpg', 1),
+   ('Luna', 'Cat', 'Persian', 'carnet_de_vacunacion.pdf', 'cat.jpg', 1)`,
 
   // Add dummy data for PQRS categories and PQRS
   `INSERT INTO pqrs_category (PQRS_category_name) 
@@ -997,10 +997,10 @@ const sqlStatements = [
   // Add more pets
   `INSERT INTO pet (Pet_name, Pet_species, Pet_Breed, Pet_vaccination_card, Pet_Photo, Owner_FK_ID)
    VALUES 
-   ('Rocky', 'Dog', 'German Shepherd', 'vaccination_card_003.pdf', 'rocky_photo.jpg', 2),
-   ('Milo', 'Dog', 'Labrador', 'vaccination_card_004.pdf', 'milo_photo.jpg', 3),
-   ('Bella', 'Cat', 'Siamese', 'vaccination_card_005.pdf', 'bella_photo.jpg', 4),
-   ('Charlie', 'Dog', 'Poodle', 'vaccination_card_006.pdf', 'charlie_photo.jpg', 5)`,
+   ('Rocky', 'Dog', 'German Shepherd', 'carnet_de_vacunacion.pdf', 'dog.jpg', 2),
+   ('Milo', 'Dog', 'Labrador', 'carnet_de_vacunacion.pdf', 'dog.jpg', 3),
+   ('Bella', 'Cat', 'Siamese', 'carnet_de_vacunacion.pdf', 'cat.jpg', 4),
+   ('Charlie', 'Dog', 'Poodle', 'carnet_de_vacunacion.pdf', 'cat.jpg', 5)`,
 
   // Add more payments
   `INSERT INTO payment (Owner_ID_FK, Payment_total_payment, Payment_Status_ID_FK, Payment_method, Payment_reference_number)

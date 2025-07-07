@@ -31,6 +31,7 @@ class PQRSModel {
     subject,
     description,
     priority,
+    file,
   }) {
     let connection;
     try {
@@ -54,9 +55,10 @@ class PQRSModel {
           PQRS_subject, 
           PQRS_description, 
           PQRS_priority, 
+          PQRS_file,
           PQRS_createdAt, 
           PQRS_updatedAt
-        ) VALUES (?, ?, ?, ?, ?, NOW(), NOW())`;
+        ) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`;
 
         const [result] = await connection.query(sqlQuery, [
           owner_id,
@@ -64,6 +66,7 @@ class PQRSModel {
           subject,
           description,
           priority,
+          file,
         ]);
 
         const pqrsId = result.insertId;

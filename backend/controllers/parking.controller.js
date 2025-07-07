@@ -51,7 +51,7 @@ class ParkingistratorController {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const { number, type_id, status_id } = req.body;
+      const { number, type_id, status_id, vehicle_type_id, user_id } = req.body;
 
       // Verificar si el parking existe
       const existingParking = await ParkingModel.findById(id);
@@ -66,7 +66,9 @@ class ParkingistratorController {
       const updateData = {
         number: number || existingParking.Parking_number,
         type_id: type_id || existingParking.Parking_type_ID_FK,
-        status_id: status_id || existingParking.Parking_status_ID_FK
+        status_id: status_id || existingParking.Parking_status_ID_FK,
+        vehicle_type_id: vehicle_type_id !== undefined ? vehicle_type_id : existingParking.Vehicle_type_ID_FK,
+        user_id: user_id !== undefined ? user_id : existingParking.User_ID_FK
       };
 
       // Actualizar

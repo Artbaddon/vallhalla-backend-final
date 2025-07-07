@@ -1,6 +1,7 @@
 import { Router } from "express";
 import PetController from "../controllers/pet.controller.js";
 import { requirePermission, requireOwnership } from "../middleware/permissionMiddleware.js";
+import upload from "../middleware/uploads.js"; 
 
 const router = Router();
 
@@ -14,8 +15,13 @@ router.get("/",
 );
 
 // Create pet
-router.post("/",
+router.post(
+  "/",
   requirePermission("pets", "create"),
+  upload.fields([
+    { name: "photo", maxCount: 1 },
+    { name: "vaccination_card", maxCount: 1 }
+  ]),
   PetController.register
 );
 
@@ -33,11 +39,18 @@ router.get("/:id",
 );
 
 // Update pet (owners can only update their own)
-router.put("/:id",
+// routes/pets.js o donde tengas tus rutas
+router.put(
+  "/:id",
   requirePermission("pets", "update"),
   requireOwnership("pet"),
+  upload.fields([
+    { name: "photo", maxCount: 1 },
+    { name: "vaccination_card", maxCount: 1 }
+  ]),
   PetController.update
 );
+
 
 // Delete pet (owners can only delete their own)
 router.delete("/:id",

@@ -31,16 +31,18 @@ class ParkingModel {
     }
   }
 
-  static async update(id, { number, type_id, status_id }) {
+  static async update(id, { number, type_id, status_id, vehicle_type_id, user_id }) {
     try {
       const [result] = await connect.query(
         `UPDATE parking 
              SET 
                 Parking_number = ?,
                 Parking_type_ID_FK = ?,
-                Parking_status_ID_FK = ?
+                Parking_status_ID_FK = ?,
+                Vehicle_type_ID_FK = ?,
+                User_ID_FK = ?
              WHERE Parking_id = ?`,
-        [number, type_id, status_id, id]
+        [number, type_id, status_id, vehicle_type_id, user_id, id]
       );
 
       return result.affectedRows > 0;

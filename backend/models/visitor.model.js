@@ -32,14 +32,34 @@ class VisitorModel {
     }
   }
 
-  static async update(id, { visitor_name, document_number }) {
+  static async update(id, { visitor_name, document_number, exit_date }) {
     try {
-      let sqlQuery = `UPDATE visitor SET name = ?, documentNumber = ? WHERE ID = ?`;
-      const [result] = await connect.query(sqlQuery, [
-        visitor_name,
-        document_number,
-        id,
-      ]);
+      let updateFields = [];
+      let values = [];
+      
+      if (visitor_name !== undefined) {
+        updateFields.push("name = ?");
+        values.push(visitor_name);
+      }
+      
+      if (document_number !== undefined) {
+        updateFields.push("documentNumber = ?");
+        values.push(document_number);
+      }
+      
+      if (exit_date !== undefined) {
+        updateFields.push("exit_date = ?");
+        values.push(exit_date);
+      }
+      
+      if (updateFields.length === 0) {
+        return { error: "No fields to update" };
+      }
+      
+      values.push(id);
+      let sqlQuery = `UPDATE visitor SET ${updateFields.join(", ")} WHERE ID = ?`;
+      
+      const [result] = await connect.query(sqlQuery, values);
       if (result.affectedRows === 0) {
         return { error: "Visitor not found" };
       } else {

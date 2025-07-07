@@ -5,39 +5,47 @@ dotenv.config();
 class PetController {
   async register(req, res) {
     try {
-      const { name, species, breed, vaccination_card, photo, owner_id } =
-        req.body;
+      const { name, species, breed, owner_id } = req.body;
+      const files = req.files;
 
-      // Validación básica
-      if (
-        !name ||
-        !species ||
-        !breed ||
-        !vaccination_card ||
-        !photo ||
-        !owner_id
-      ) {
-        return res
-          .status(400)
-          .json({ error: "Todos los campos son requeridos" });
+      if (!name || !species || !breed || !owner_id) {
+        return res.status(400).json({
+          error: "Todos los campos son requeridos (excepto archivos)",
+        });
       }
+
+      // Verificar que ambos archivos estén
+      if (!files || !files.photo || !files.vaccination_card) {
+        return res.status(400).json({
+          error: "Se requiere imagen y certificado de vacunación (PDF)",
+        });
+      }
+
+      const photoFile = files.photo[0];
+      const vaccinationCardFile = files.vaccination_card[0];
+
+      // Rutas públicas para guardar en BD
+      const photoPath = `${photoFile.filename}`;
+      const vaccinationCardPath = `${vaccinationCardFile.filename}`;
+
       const petId = await PetModel.create({
         name,
         species,
         breed,
-        vaccination_card,
-        photo,
-        owner_id: owner_id,
+        vaccination_card: vaccinationCardPath,
+        photo: photoPath,
+        owner_id,
       });
+
       res.status(201).json({
-        message: "Mascota creada con exito",
+        message: "Mascota creada con éxito",
         data: {
-          petId:petId,
+          petId,
           name,
           species,
           breed,
-          vaccination_card,
-          photo,
+          vaccination_card: vaccinationCardPath,
+          photo: photoPath,
           owner_id,
         },
       });
@@ -50,50 +58,55 @@ class PetController {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const { name, species, breed, vaccination_card, photo, owner_id } =
-        req.body;
+      const { name, species, breed, owner_id } = req.body;
+
+      // Archivos subidos (vienen de multer)
+      const photoFile = req.files?.photo?.[0];
+      const vaccinationCardFile = req.files?.vaccination_card?.[0];
+
+      const photo = photoFile ? `${photoFile.filename}` : undefined;
+      const vaccination_card = vaccinationCardFile
+        ? `/uploads/${vaccinationCardFile.filename}`
+        : undefined;
 
       // Validación básica
-      if (
-        !name ||
-        !species ||
-        !breed ||
-        !vaccination_card ||
-        !photo ||
-        !owner_id
-      ) {
-        return res
-          .status(400)
-          .json({
-            error: "Debe proporcionar al menos un campo para actualizar",
-          });
+      if (!name || !species || !breed || !owner_id) {
+        return res.status(400).json({
+          error: "Faltan campos obligatorios",
+        });
       }
 
-      // Verificar si pet existe
+      // Verificar si la mascota existe
       const existingPet = await PetModel.findById(id);
       if (!existingPet) {
         return res.status(404).json({ error: "Mascota no encontrada" });
       }
-      // Actualizar
-      const updateResult = await PetModel.update(id, {
+
+      // Armar el objeto de actualización
+      const updateData = {
         name,
         species,
         breed,
-        vaccination_card,
-        photo,
         owner_id,
-      });
+      };
+
+      // Solo agregar archivos si se subieron
+      if (photo) updateData.photo = photo;
+      if (vaccination_card) updateData.vaccination_card = vaccination_card;
+
+      // Ejecutar actualización
+      const updateResult = await PetModel.update(id, updateData);
 
       if (!updateResult) {
         return res.status(400).json({
           success: false,
-          error: "No se realizaron cambios en mascotat",
+          error: "No se realizaron cambios en la mascota",
         });
       }
 
       res.status(200).json({
         success: true,
-        message: "Mascota actualizado exitosamente",
+        message: "Mascota actualizada exitosamente",
         data: updateResult.pet || { id },
       });
     } catch (error) {
@@ -104,7 +117,7 @@ class PetController {
       });
     }
   }
-
+  
   async show(req, res) {
     try {
       const existingPetModel = await PetModel.show();

@@ -274,8 +274,15 @@ class SurveyController {
     try {
       const { title, status, question } = req.body;
 
+      // Debug logging
+      console.log('Survey creation request body:', req.body);
+      console.log('Title:', title);
+      console.log('Status:', status);
+      console.log('Question:', question);
+
       // Validate required fields
       if (!title) {
+        console.log('Validation failed: No title provided');
         return res.status(400).json({
           success: false,
           error: "El título de la encuesta es requerido",
@@ -283,6 +290,10 @@ class SurveyController {
       }
 
       if (!question || !question.title || !question.question_type_id) {
+        console.log('Validation failed: Invalid question data');
+        console.log('Question exists:', !!question);
+        console.log('Question title:', question?.title);
+        console.log('Question type ID:', question?.question_type_id);
         return res.status(400).json({
           success: false,
           error: "Se requiere una pregunta inicial con título y tipo",

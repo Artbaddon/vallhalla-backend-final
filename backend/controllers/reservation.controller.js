@@ -121,12 +121,10 @@ class ReservationController {
       if (reservations.error) {
         return res.status(500).json({ error: reservations.error });
       }
-      if (reservations.length === 0) {
-        return res.status(404).json({ error: "No reservations found" });
-      }
 
+      // Return empty array with 200 status instead of 404 when no reservations found
       res.status(200).json({
-        message: "Reservations retrieved successfully",
+        message: reservations.length === 0 ? "No reservations found" : "Reservations retrieved successfully",
         data: reservations,
       });
     } catch (error) {

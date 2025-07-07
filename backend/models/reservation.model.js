@@ -172,7 +172,6 @@ class ReservationModel {
   static async update(
     id,
     {
-      owner_id,
       type_id,
       status_id,
       facility_id,
@@ -182,9 +181,8 @@ class ReservationModel {
     }
   ) {
     try {
-      // Validate foreign keys first
+      // Validate foreign keys first (excluding owner_id since it shouldn't be updated)
       const validation = await this.validateForeignKeys({
-        owner_id,
         type_id,
         status_id,
       });
@@ -211,27 +209,48 @@ class ReservationModel {
         }
       }
 
-      let sqlQuery = `UPDATE reservation SET 
-        Owner_FK_ID = ?, 
-        Reservation_type_FK_ID = ?, 
-        Reservation_status_FK_ID = ?, 
-        Facility_FK_ID = ?,
-        Reservation_start_time = ?, 
-        Reservation_end_time = ?, 
-        Reservation_description = ?, 
-        Reservation_date = NOW() 
-        WHERE Reservation_id = ?`;
+      // Build dynamic query based on provided fields
+      let updateFields = [];
+      let updateValues = [];
 
-      const [result] = await connect.query(sqlQuery, [
-        owner_id,
-        type_id,
-        status_id,
-        facility_id,
-        start_date,
-        end_date,
-        description,
-        id,
-      ]);
+      if (type_id !== undefined) {
+        updateFields.push("Reservation_type_FK_ID = ?");
+        updateValues.push(type_id);
+      }
+
+      if (status_id !== undefined) {
+        updateFields.push("Reservation_status_FK_ID = ?");
+        updateValues.push(status_id);
+      }
+
+      if (facility_id !== undefined) {
+        updateFields.push("Facility_FK_ID = ?");
+        updateValues.push(facility_id);
+      }
+
+      if (start_date !== undefined) {
+        updateFields.push("Reservation_start_time = ?");
+        updateValues.push(start_date);
+      }
+
+      if (end_date !== undefined) {
+        updateFields.push("Reservation_end_time = ?");
+        updateValues.push(end_date);
+      }
+
+      if (description !== undefined) {
+        updateFields.push("Reservation_description = ?");
+        updateValues.push(description);
+      }
+
+      if (updateFields.length === 0) {
+        return { error: "No fields to update" };
+      }
+
+      let sqlQuery = `UPDATE reservation SET ${updateFields.join(", ")} WHERE Reservation_id = ?`;
+      updateValues.push(id);
+
+      const [result] = await connect.query(sqlQuery, updateValues);
 
       if (result.affectedRows === 0) {
         return { error: "Reservation not found" };
@@ -289,7 +308,7 @@ class ReservationModel {
         LEFT JOIN reservation_status rs ON r.Reservation_status_FK_ID = rs.Reservation_status_id
         LEFT JOIN reservation_type rt ON r.Reservation_type_FK_ID = rt.Reservation_type_id
         WHERE r.Owner_FK_ID = ?
-        ORDER BY r.Reservation_date DESC
+        ORDER BY r.Reservation_start_time DESC
       `;
       const [result] = await connect.query(sqlQuery, [owner_id]);
       return result;
@@ -306,7 +325,7 @@ class ReservationModel {
         LEFT JOIN reservation_status rs ON r.Reservation_status_FK_ID = rs.Reservation_status_id
         LEFT JOIN reservation_type rt ON r.Reservation_type_FK_ID = rt.Reservation_type_id
         WHERE r.Reservation_start_time >= ? AND r.Reservation_end_time <= ?
-        ORDER BY r.Reservation_date DESC
+        ORDER BY r.Reservation_start_time DESC
       `;
       const [result] = await connect.query(sqlQuery, [start_time, end_time]);
       return result;
